@@ -18,8 +18,11 @@ user.unprivileged: nobody
 # The listening network interface or address.
 internal: 0.0.0.0 port=1080
 
+# 获取主要网络接口名称
+interface_name=$(ip -o -4 route show to default | awk '{print $5}')
+
 # The proxying network interface or address.
-external: enX0
+external: $interface_name
 
 # socks-rules determine what is proxied through the external interface.
 socksmethod: username
