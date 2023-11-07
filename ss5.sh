@@ -38,8 +38,8 @@ EOF
 
 
 
-sudo useradd -r -s /bin/false leishao
-echo 'leishao' | sudo passwd --stdin leishao
+sudo useradd -r -s /bin/false harlan
+echo -e "leishao\nleishao" | sudo passwd harlan
 
 
 
