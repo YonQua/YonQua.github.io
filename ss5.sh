@@ -9,6 +9,10 @@ sudo apt install dante-server
 # Remove default config file
 sudo rm /etc/danted.conf
 
+
+# 获取主要网络接口名称
+interface_name=$(ip -o -4 route show to default | awk '{print $5}')
+
 # Create and edit new config file
 sudo bash -c 'cat <<EOF > /etc/danted.conf
 logoutput: syslog
@@ -18,8 +22,6 @@ user.unprivileged: nobody
 # The listening network interface or address.
 internal: 0.0.0.0 port=1080
 
-# 获取主要网络接口名称
-interface_name=$(ip -o -4 route show to default | awk '{print $5}')
 
 # The proxying network interface or address.
 external: $interface_name
