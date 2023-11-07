@@ -1,49 +1,56 @@
-
-
 #!/bin/bash
 
-sudo apt update
+# Update package lists
+sudo apt update  
+
+# Install dante-server package
 sudo apt install dante-server
 
+# Remove default config file
 sudo rm /etc/danted.conf
 
+# Create and edit new config file
+sudo cat <<EOF | sudo tee /etc/danted.conf
 
-
-# 创建并编辑 /etc/danted.conf
-sudo nano /etc/danted.conf <<EOF
+# Log to syslog
 logoutput: syslog
-user.privileged: root
+
+# Run as root user
+user.privileged: root  
+
+# Run unprivileged child processes as nobody user
 user.unprivileged: nobody
 
-# The listening network interface or address.
+# Listen on all interfaces on port 1080  
 internal: 0.0.0.0 port=1080
 
-# The proxying network interface or address.
+# Use eth0 for outgoing connections
 external: eth0
 
-# socks-rules determine what is proxied through the external interface.
-socksmethod: username
+# Use username/password auth for SOCKS connections
+socksmethod: username 
 
-# client-rules determine who can connect to the internal interface.
+# Allow all clients without authentication
 clientmethod: none
 
 client pass {
-    from: 0.0.0.0/0 to: 0.0.0.0/0
+  from: 0.0.0.0/0 to: 0.0.0.0/0
 }
 
 socks pass {
-    from: 0.0.0.0/0 to: 0.0.0/0
+  from: 0.0.0.0/0 to: 0.0.0/0 
 }
+
 EOF
 
+# Create unprivileged user account
+sudo useradd -r -s /bin/false leishao
 
+# Set password for leishao user 
+echo -e "leishao\nleishao" | sudo passwd leishao
 
-sudo useradd -r -s /bin/false harlan
-echo -e "leishao\nleishao" | sudo passwd harlan
-
-
-
+# Restart danted service
 sudo systemctl restart danted.service
 
-
-systemctl status danted.service
+# Check status  
+sudo systemctl status danted.service
