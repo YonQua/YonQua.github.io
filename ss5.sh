@@ -25,7 +25,7 @@ user.unprivileged: nobody
 internal: 0.0.0.0 port=1080
 
 # Use eth0 for outgoing connections
-external: eth0
+external: enX0
 
 # Use username/password auth for SOCKS connections
 socksmethod: username 
