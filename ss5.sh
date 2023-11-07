@@ -50,3 +50,11 @@ sudo systemctl restart danted.service
 
 # Check status  
 sudo systemctl status danted.service
+
+# 调用
+# wget https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/ss5.sh && chmod +x ss5.sh && ./ss5.sh
+
+# 测试
+#curl -v -x socks5://leishao:leishao@146.190.114.82:1080 http://www.google.com/
+
+
