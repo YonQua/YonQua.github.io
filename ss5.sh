@@ -10,38 +10,31 @@ sudo apt install dante-server
 sudo rm /etc/danted.conf
 
 # Create and edit new config file
-sudo cat <<EOF | sudo tee /etc/danted.conf
-
-# Log to syslog
+sudo bash -c 'cat <<EOF > /etc/danted.conf
 logoutput: syslog
-
-# Run as root user
-user.privileged: root  
-
-# Run unprivileged child processes as nobody user
+user.privileged: root
 user.unprivileged: nobody
 
-# Listen on all interfaces on port 1080  
+# The listening network interface or address.
 internal: 0.0.0.0 port=1080
 
-# Use eth0 for outgoing connections
+# The proxying network interface or address.
 external: enX0
 
-# Use username/password auth for SOCKS connections
-socksmethod: username 
+# socks-rules determine what is proxied through the external interface.
+socksmethod: username
 
-# Allow all clients without authentication
+# client-rules determine who can connect to the internal interface.
 clientmethod: none
 
 client pass {
-  from: 0.0.0.0/0 to: 0.0.0.0/0
+    from: 0.0.0.0/0 to: 0.0.0.0/0
 }
 
 socks pass {
-  from: 0.0.0.0/0 to: 0.0.0/0 
+    from: 0.0.0.0/0 to: 0.0.0.0/0
 }
-
-EOF
+EOF'
 
 # Create unprivileged user account
 sudo useradd -r -s /bin/false leishao
