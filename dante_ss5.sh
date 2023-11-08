@@ -21,15 +21,16 @@ interface_name=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Configuring SOCKS5 ..."
 
 # Use a here-document to create the new danted.conf file
-sudo bash -c "cat <<EOF > /etc/danted.conf
+sudo bash -c "cat > /etc/danted.conf <<EOF
 # logoutput: /var/log/danted.log
-internal: $interface_name port=$PROXY_PORT
+logoutput: stderr
+internal: 0.0.0.0 port = $PROXY_PORT
 external: $interface_name
-
-method: username
+clientmethod: none
+socksmethod: username none #rfc931
 user.privileged: root
-user.notprivileged: $PROXY_USER
-
+user.unprivileged: nobody
+user.libwrap: nobody
 client pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
@@ -46,6 +47,11 @@ sudo useradd -r -s /sbin/nologin $PROXY_USER
 
 # Set password for the proxy user
 echo -e "$PROXY_PASS\n$PROXY_PASS" | sudo passwd $PROXY_USER > /dev/null 2>&1
+
+
+sudo service danted stop
+
+sudo service danted start
 
 # Restart danted service
 sudo systemctl restart danted
