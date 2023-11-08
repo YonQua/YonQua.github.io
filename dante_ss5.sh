@@ -23,7 +23,7 @@ echo "Configuring SOCKS5 ..."
 # Use a here-document to create the new danted.conf file
 sudo bash -c "cat <<EOF > /etc/danted.conf
 logoutput: /var/log/danted.log
-internal: $interface_name port $PROXY_PORT
+internal: $interface_name port = $PROXY_PORT
 external: $interface_name
 
 method: username
