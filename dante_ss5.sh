@@ -22,37 +22,46 @@ apt-get install -y dante-server danted || { echo "安装失败"; exit 1; }
 echo "配置 SOCKS5 ..."
 
 cat > /etc/danted.conf <<EOF
-port = $PROXY_PORT 
-method = username
-user.privileged = root
-user.notprivileged = nobody
+logoutput: /var/log/danted.log
+internal: eth0 port = $PROXY_PORT
+external: eth0
+
+method: username
+user.privileged: root
+user.notprivileged: nobody
+
 client pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
+
 socks pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
 EOF
 
+# 添加用户和密码
+useradd -s /usr/sbin/nologin $PROXY_USER
+echo "$PROXY_USER:$PROXY_PASS" | chpasswd
+
 # 创建服务脚本
-cat > /etc/systemd/system/danted.service <<EOF
+cat > /etc/systemd/system/sockd.service <<EOF
 [Unit]
 Description=Dante SOCKS5 proxy server
 After=network.target
+
 [Service]
-ExecStart=/usr/sbin/danted --foreground
-[Install]  
+ExecStart=/usr/sbin/sockd -D
+
+[Install]
 WantedBy=multi-user.target
 EOF
 
-# 添加用户和密码
-useradd -m -s /bin/false -p $(openssl passwd -1 $PROXY_PASS) $PROXY_USER
-
 # 启动服务
-systemctl enable danted
-systemctl restart danted
+systemctl daemon-reload
+systemctl enable sockd
+systemctl start sockd
 
 # 打开端口
 iptables -I INPUT -p tcp --dport $PROXY_PORT -j ACCEPT
