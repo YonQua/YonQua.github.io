@@ -54,7 +54,7 @@ sudo service danted stop
 sudo service danted start
 
 # Restart danted service
-sudo systemctl restart danted
+# sudo systemctl restart danted
 
 # Check service status
 sudo systemctl status danted.service
