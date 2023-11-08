@@ -27,6 +27,7 @@ logoutput: stderr
 internal: 0.0.0.0 port = $PROXY_PORT
 external: $interface_name
 clientmethod: none
+socksmethod: username none #rfc931
 user.privileged: root
 user.unprivileged: nobody
 user.libwrap: nobody
@@ -38,10 +39,10 @@ socks pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
-socks pass {
-  from: ::/0 to: ::/0
-  log: error connect disconnect
-}
+# socks pass {
+#   from: ::/0 to: ::/0
+#   log: error connect disconnect
+# }
 EOF"
 
 # Create an unprivileged user account
