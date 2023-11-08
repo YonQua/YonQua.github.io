@@ -48,7 +48,7 @@ echo -e "$PROXY_USER\n$PROXY_PASS" | sudo passwd $PROXY_USER
 
 
 # Restart danted service
-sudo systemctl restart danted.service
+sudo systemctl restart danted
 
 # Check status  
 sudo systemctl status danted.service
