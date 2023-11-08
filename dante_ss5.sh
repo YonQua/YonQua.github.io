@@ -45,6 +45,7 @@ socks pass {
 # }
 EOF"
 
+
 # Create an unprivileged user account
 sudo useradd -r -s /sbin/nologin $PROXY_USER
 
