@@ -1,33 +1,34 @@
 #!/bin/bash
 
-# 定义变量
+# Define variables
 PROXY_PORT=24451
 PROXY_USER=leishao
 PROXY_PASS=leishao
 
-# 更新软件包列表
-sudo apt update  
+# Update package lists
+sudo apt update
 
-# 安装 dante-server 软件包
-sudo apt install dante-server
+# Install dante-server package
+sudo apt install dante-server -y
 
-# 删除默认配置文件
-sudo rm /etc/danted.conf
+# Remove default configuration file
+sudo rm -f /etc/danted.conf
 
-# 获取主要网络接口名称
+# Get the main network interface name
 interface_name=$(ip -o -4 route show to default | awk '{print $5}')
 
-# 配置 SOCKS5
-echo "配置 SOCKS5 ..."
+# Configure SOCKS5
+echo "Configuring SOCKS5 ..."
 
+# Use a here-document to create the new danted.conf file
 sudo bash -c "cat <<EOF > /etc/danted.conf
 logoutput: /var/log/danted.log
-internal: $interface_name port = $PROXY_PORT
+internal: $interface_name port $PROXY_PORT
 external: $interface_name
 
 method: username
 user.privileged: root
-user.notprivileged: nobody
+user.notprivileged: _sockd
 
 client pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
@@ -40,15 +41,14 @@ socks pass {
 }
 EOF"
 
-# Create unprivileged user account
-sudo useradd -r -s /bin/false $PROXY_USER
+# Create an unprivileged user account
+sudo useradd -r -s /sbin/nologin $PROXY_USER
 
-# Set password for leishao user 
-echo -e "$PROXY_USER\n$PROXY_PASS" | sudo passwd $PROXY_USER
-
+# Set password for the proxy user
+echo "$PROXY_USER:$PROXY_PASS" | sudo chpasswd
 
 # Restart danted service
 sudo systemctl restart danted
 
-# Check status  
+# Check service status
 sudo systemctl status danted.service
