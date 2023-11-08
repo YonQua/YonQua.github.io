@@ -27,21 +27,17 @@ logoutput: stderr
 internal: 0.0.0.0 port = $PROXY_PORT
 external: $interface_name
 clientmethod: none
-socksmethod: username none #rfc931
+socksmethod: pam.username none
 user.privileged: root
-user.unprivileged: nobody
-user.libwrap: nobody
+user.notprivileged: nobody
 client pass {
-  from: 0.0.0.0/0 to: 0.0.0.0/0
-  log: error connect disconnect
+    from: 0/0  to: 0/0
+    log: connect disconnect
 }
 socks pass {
-  from: 0.0.0.0/0 to: 0.0.0.0/0
-  log: error connect disconnect
-}
-socks pass {
-  from: ::/0 to: ::/0
-  log: error connect disconnect
+    from: 0/0 to: 0/0
+    socksmethod: pam.username
+    log: connect disconnect
 }
 EOF"
 
