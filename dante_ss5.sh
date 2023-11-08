@@ -27,8 +27,8 @@ logoutput: stderr
 internal: 0.0.0.0 port = $PROXY_PORT
 external: $interface_name
 clientmethod: none
-# socksmethod: username none #rfc931
-socksmethod: username password #rfc931
+socksmethod: username none #rfc931
+# socksmethod: username password #rfc931
 
 user.privileged: root
 user.unprivileged: nobody
