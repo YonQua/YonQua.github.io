@@ -20,7 +20,7 @@ interface_name=$(ip -o -4 route show to default | awk '{print $5}')
 # 配置 SOCKS5
 echo "配置 SOCKS5 ..."
 
-cat > /etc/danted.conf <<EOF
+sudo bash -c "cat <<EOF > /etc/danted.conf
 logoutput: /var/log/danted.log
 internal: $interface_name port = $PROXY_PORT
 external: $interface_name
@@ -38,11 +38,13 @@ socks pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
-EOF
+EOF"
 
-# 添加用户和密码
-useradd -s /usr/sbin/nologin $PROXY_USER
-echo "$PROXY_USER:$PROXY_PASS" | chpasswd
+# Create unprivileged user account
+sudo useradd -r -s /bin/false $PROXY_USER
+
+# Set password for leishao user 
+echo -e "$PROXY_USER\n$PROXY_PASS" | sudo passwd $PROXY_USER
 
 
 # Restart danted service
