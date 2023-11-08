@@ -1,30 +1,29 @@
 #!/bin/bash
 
-# SOCKS5 安装脚本
-
 # 定义变量
 PROXY_PORT=2445
 PROXY_USER=leishao
 PROXY_PASS=leishao
 
-# 检查是否已安装
-if [ -f /etc/danted.conf ]; then
-  echo "SOCKS5 已安装,退出"
-  exit
-fi
+# 更新软件包列表
+sudo apt update  
 
-# 安装
-echo "安装 SOCKS5 ..." 
-apt-get update
-apt-get install -y dante-server danted || { echo "安装失败"; exit 1; }
+# 安装 dante-server 软件包
+sudo apt install dante-server
 
-# 配置
+# 删除默认配置文件
+sudo rm /etc/danted.conf
+
+# 获取主要网络接口名称
+interface_name=$(ip -o -4 route show to default | awk '{print $5}')
+
+# 配置 SOCKS5
 echo "配置 SOCKS5 ..."
 
 cat > /etc/danted.conf <<EOF
 logoutput: /var/log/danted.log
-internal: eth0 port = $PROXY_PORT
-external: eth0
+internal: $interface_name port = $PROXY_PORT
+external: $interface_name
 
 method: username
 user.privileged: root
@@ -45,28 +44,9 @@ EOF
 useradd -s /usr/sbin/nologin $PROXY_USER
 echo "$PROXY_USER:$PROXY_PASS" | chpasswd
 
-# 创建服务脚本
-cat > /etc/systemd/system/sockd.service <<EOF
-[Unit]
-Description=Dante SOCKS5 proxy server
-After=network.target
 
-[Service]
-ExecStart=/usr/sbin/sockd -D
+# Restart danted service
+sudo systemctl restart danted.service
 
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 启动服务
-systemctl daemon-reload
-systemctl enable sockd
-systemctl start sockd
-
-# 打开端口
-iptables -I INPUT -p tcp --dport $PROXY_PORT -j ACCEPT
-
-echo "SOCKS5 安装完成"
-echo "端口:$PROXY_PORT"
-echo "用户名:$PROXY_USER"
-echo "密码: $PROXY_PASS"
+# Check status  
+sudo systemctl status danted.service
