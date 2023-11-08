@@ -38,7 +38,6 @@ socks pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
-# 添加 IPv6 配置
 socks pass {
   from: ::/0 to: ::/0
   log: error connect disconnect
