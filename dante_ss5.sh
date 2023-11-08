@@ -28,7 +28,7 @@ external: $interface_name
 
 method: username
 user.privileged: root
-user.notprivileged: _sockd
+user.notprivileged: nobody
 
 client pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
