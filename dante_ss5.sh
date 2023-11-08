@@ -16,7 +16,7 @@ fi
 # 安装
 echo "安装 SOCKS5 ..." 
 apt-get update
-apt-get install -y dante-server || { echo "安装失败"; exit 1; }
+apt-get install -y dante-server danted || { echo "安装失败"; exit 1; }
 
 # 配置
 echo "配置 SOCKS5 ..."
