@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 定义变量
-PROXY_PORT=2445
+PROXY_PORT=24451
 PROXY_USER=leishao
 PROXY_PASS=leishao
 
