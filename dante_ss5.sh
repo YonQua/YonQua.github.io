@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 # Define variables
 PROXY_PORT=24451
@@ -39,10 +39,10 @@ socks pass {
   from: 0.0.0.0/0 to: 0.0.0.0/0
   log: error connect disconnect
 }
-# socks pass {
-#   from: ::/0 to: ::/0
-#   log: error connect disconnect
-# }
+socks pass {
+  from: ::/0 to: ::/0
+  log: error connect disconnect
+}
 EOF"
 
 
