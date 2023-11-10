@@ -8,6 +8,10 @@ fi
 
 # 更新系统源
 apt update
+apt-get install unzip
+
+# 切换到脚本所在目录
+cd "$(dirname "$0")"
 
 # 检查是否提供了必要的参数
 if [ "$#" -ne 3 ]; then
@@ -32,6 +36,9 @@ if ! command -v xray &> /dev/null; then
 else
     echo "Xray is already installed."
 fi
+
+# 创建 Xray 配置文件目录
+mkdir -p "$(dirname "$CONFIG_FILE")"
 
 # 创建 Xray 配置文件
 cat <<EOF > "$CONFIG_FILE"
@@ -70,10 +77,7 @@ cat <<EOF > "$CONFIG_FILE"
     "rules": [
       {
         "type": "field",
-        "domain": [
-        "domain:openai.com", 
-        "domain:ai.com"
-        ],
+        "domain": ["domain:openai.com", "domain:ai.com"],
         "outboundTag": "WARP"
       },
       {
