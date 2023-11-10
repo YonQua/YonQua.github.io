@@ -1,63 +1,60 @@
 #!/bin/bash
 
-# 检查是否以 root 权限运行
+# 检查是否以root权限运行
 if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root."
-    exit 1
+  echo "Please run as root."
+  exit 1
 fi
 
 # 更新系统源
 apt update
-apt install -y unzip
+apt-get install -y unzip
 
-# 切换到脚本所在目录
+# 切换到脚本目录 
 cd "$(dirname "$0")"
 
-# 检查是否提供了必要的参数
+# 检查参数
 if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <username> <password> <socks_port>"
-    exit 1
+  echo "Usage: $0 <username> <password> <socks_port>"
+  exit 1
 fi
 
-# 提取参数
+# 定义变量
 USERNAME=$1
 PASSWORD=$2
 SOCKS_PORT=$3
-WARP_SECRET_KEY="Bk2DlifX7QjNZXGiWSFUJYLORv2U/FHNhHbpbKoy9xk="
-WARP_PUBLIC_KEY="bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
-WARP_ENDPOINT="engage.cloudflareclient.com:2408"
-CONFIG_FILE="/etc/xray/config.json"
 
-# 下载并解压 Xray
+# 其他变量...
+
+# 安装Xray
 if ! command -v xray &> /dev/null; then
-    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
-    unzip Xray-linux-64.zip
-    mv xray /usr/local/bin/xrayL
-    chmod +x /usr/local/bin/xrayL
-    cat <<EOF >/etc/systemd/system/xrayL.service
+  # 下载解压
+  wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
+  unzip Xray-linux-64.zip
+  cp xray /usr/local/bin/xray
+
+  # 添加systemd服务
+  cat > /etc/systemd/system/xray.service <<EOF
 [Unit]
 Description=Xray Service
 After=network.target
-
 [Service]
-ExecStart=/usr/local/bin/xrayL run -c /etc/xray/config.json
+ExecStart=/usr/local/bin/xray run -c /etc/xray/config.json
 Restart=on-failure
 User=root
-
-[Install]
+[Install]  
 WantedBy=multi-user.target
 EOF
-    systemctl enable xrayL
-    systemctl start xrayL
+
+  mkdir -p /etc/xray
+  sudo systemctl enable xray.service
+  sudo systemctl start xray.service
 else
-    echo "Xray is already installed."
+  echo "Xray already installed."
 fi
 
-# 创建 Xray 配置文件目录
-mkdir -p "$(dirname "$CONFIG_FILE")"
-
-# 创建 Xray 配置文件
-cat <<EOF > "$CONFIG_FILE"
+# 生成配置文件
+cat > /etc/xray/config.json <<EOF
 {
   "outbounds": [
     {
@@ -105,13 +102,10 @@ cat <<EOF > "$CONFIG_FILE"
 }
 EOF
 
-# 启动 Xray
-if pgrep -x "xrayL" > /dev/null; then
-    echo "Xray is already running."
-else
-    systemctl restart xrayL
-    echo "Xray has been started."
+# 启动Xray
+if ! pgrep -x "xray" > /dev/null; then
+  sudo systemctl start xray.service
+  echo "Xray started." 
 fi
 
-# 显示提示信息
-echo "Xray SOCKS Proxy is running on port $SOCKS_PORT with username $USERNAME and password $PASSWORD."
+echo "Xray SOCKS proxy running on port $SOCKS_PORT"
