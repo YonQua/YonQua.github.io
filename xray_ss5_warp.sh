@@ -29,7 +29,7 @@ CONFIG_FILE="/etc/xray/config.json"
 
 # 下载并解压 Xray
 if ! command -v xray &> /dev/null; then
-    wget https://github.com/XTLS/Xray-core/releases/download/latest/xray-linux-64.zip
+    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.4/Xray-linux-64.zip
     unzip xray-linux-64.zip -d /usr/local/bin
     rm xray-linux-64.zip
 else
