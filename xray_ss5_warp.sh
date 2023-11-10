@@ -9,6 +9,7 @@ fi
 # 更新系统源
 apt update
 apt install -y unzip
+
 # 切换到脚本所在目录
 cd "$(dirname "$0")"
 
@@ -29,11 +30,25 @@ CONFIG_FILE="/etc/xray/config.json"
 
 # 下载并解压 Xray
 if ! command -v xray &> /dev/null; then
-	wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
-	unzip Xray-linux-64.zip
-	mv xray /usr/local/bin/xrayL
-	chmod +x /usr/local/bin/xrayL
-	cat <<EOF >/etc/systemd/system/xrayL.service
+    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
+    unzip Xray-linux-64.zip
+    mv xray /usr/local/bin/xrayL
+    chmod +x /usr/local/bin/xrayL
+    cat <<EOF >/etc/systemd/system/xrayL.service
+[Unit]
+Description=Xray Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/xrayL run -c /etc/xray/config.json
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl enable xrayL
+    systemctl start xrayL
 else
     echo "Xray is already installed."
 fi
@@ -91,10 +106,10 @@ cat <<EOF > "$CONFIG_FILE"
 EOF
 
 # 启动 Xray
-if pgrep -x "xray" > /dev/null; then
+if pgrep -x "xrayL" > /dev/null; then
     echo "Xray is already running."
 else
-    xray -c "$CONFIG_FILE" > /dev/null 2>&1 &
+    systemctl restart xrayL
     echo "Xray has been started."
 fi
 
