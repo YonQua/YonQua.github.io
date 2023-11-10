@@ -10,8 +10,8 @@ fi
 apt update
 
 # 检查是否提供了必要的参数
-if [ "$#" -ne 6 ]; then
-    echo "Usage: $0 <username> <password> <socks_port> <warp_secret_key> <warp_public_key> <warp_endpoint>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <username> <password> <socks_port>"
     exit 1
 fi
 
