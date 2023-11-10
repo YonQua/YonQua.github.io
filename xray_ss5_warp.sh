@@ -8,8 +8,7 @@ fi
 
 # 更新系统源
 apt update
-apt-get install unzip
-
+apt install -y unzip
 # 切换到脚本所在目录
 cd "$(dirname "$0")"
 
