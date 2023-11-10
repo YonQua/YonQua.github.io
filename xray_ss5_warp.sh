@@ -70,7 +70,10 @@ cat <<EOF > "$CONFIG_FILE"
     "rules": [
       {
         "type": "field",
-        "domain": ["domain:openai.com", "domain:ai.com"],
+        "domain": [
+        "domain:openai.com", 
+        "domain:ai.com"
+        ],
         "outboundTag": "WARP"
       },
       {
