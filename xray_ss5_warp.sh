@@ -29,9 +29,11 @@ CONFIG_FILE="/etc/xray/config.json"
 
 # 下载并解压 Xray
 if ! command -v xray &> /dev/null; then
-    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.4/Xray-linux-64.zip
-    unzip xray-linux-64.zip -d /usr/local/bin
-    rm xray-linux-64.zip
+	wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
+	unzip Xray-linux-64.zip
+	mv xray /usr/local/bin/xrayL
+	chmod +x /usr/local/bin/xrayL
+	cat <<EOF >/etc/systemd/system/xrayL.service
 else
     echo "Xray is already installed."
 fi
