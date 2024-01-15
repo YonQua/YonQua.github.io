@@ -1,60 +1,60 @@
-!/bin/bash
-
-# Define variables
-PROXY_PORT=24451
-PROXY_USER=leishao
-PROXY_PASS=leishao
+#!/bin/bash
 
 # Update package lists
-sudo apt update
+sudo apt update  
 
 # Install dante-server package
-sudo apt install dante-server -y
+sudo apt install dante-server
 
-# Remove default configuration file
-sudo rm -f /etc/danted.conf
+# Remove default config file
+sudo rm /etc/danted.conf
 
-# Get the main network interface name
+# 获取主要网络接口名称
 interface_name=$(ip -o -4 route show to default | awk '{print $5}')
 
-# Configure SOCKS5
-echo "Configuring SOCKS5 ..."
-
-# Use a here-document to create the new danted.conf file
-sudo bash -c "cat > /etc/danted.conf <<EOF
-# logoutput: /var/log/danted.log
-logoutput: stderr
-internal: 0.0.0.0 port = $PROXY_PORT
-external: $interface_name
-clientmethod: none
-socksmethod: pam.username none
+# Create and edit new config file
+sudo bash -c "cat <<EOF > /etc/danted.conf
+logoutput: syslog
 user.privileged: root
-user.notprivileged: nobody
+user.unprivileged: nobody
+
+# The listening network interface or address.
+internal: 0.0.0.0 port=1080
+
+# The proxying network interface or address.
+external: $interface_name
+
+# socks-rules determine what is proxied through the external interface.
+socksmethod: none
+
+# client-rules determine who can connect to the internal interface.
+clientmethod: none
+
 client pass {
-    from: 0/0  to: 0/0
-    log: connect disconnect
+    from: 0.0.0.0/0 to: 0.0.0.0/0
 }
+
 socks pass {
-    from: 0/0 to: 0/0
-    socksmethod: pam.username
-    log: connect disconnect
+    from: 0.0.0.0/0 to: 0.0.0.0/0
 }
 EOF"
 
+# Create unprivileged user account
+sudo useradd -r -s /bin/false leishao
 
-# Create an unprivileged user account
-sudo useradd -r -s /sbin/nologin $PROXY_USER
-
-# Set password for the proxy user
-echo -e "$PROXY_PASS\n$PROXY_PASS" | sudo passwd $PROXY_USER > /dev/null 2>&1
-
-
-sudo service danted stop
-
-sudo service danted start
+# Set password for leishao user 
+echo -e "leishao\nleishao" | sudo passwd leishao
 
 # Restart danted service
-# sudo systemctl restart danted
+sudo systemctl restart danted.service
 
-# Check service status
+# Check status  
 sudo systemctl status danted.service
+
+# 调用
+# wget https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/ss5.sh && chmod +x ss5.sh && ./ss5.sh
+
+# 测试
+#curl -v -x socks5://leishao:leishao@146.190.114.82:1080 http://www.google.com/
+
+
