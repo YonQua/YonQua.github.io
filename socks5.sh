@@ -38,7 +38,6 @@ EOF
     fi
 }
 
-
 config_xray() {
     config_type="socks"
     read -p "起始端口 (默认 $DEFAULT_START_PORT): " START_PORT
@@ -85,7 +84,6 @@ config_xray() {
     echo "socks密码:$SOCKS_PASSWORD"
     echo ""
 }
-
 
 main() {
     [ -x "$(command -v xrayL)" ] || install_xray
