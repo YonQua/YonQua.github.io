@@ -30,7 +30,6 @@ EOF
     systemctl start xrayL.service
     echo "Xray 安装完成."
 }
-
 config_xray() {
     config_type="socks"
     read -p "起始端口 (默认 $DEFAULT_START_PORT): " START_PORT
@@ -43,6 +42,7 @@ config_xray() {
     SOCKS_PASSWORD=${SOCKS_PASSWORD:-$DEFAULT_SOCKS_PASSWORD}
 
     for ((i = 0; i < ${#IP_ADDRESSES[@]}; i++)); do
+        config_content=""
         config_content+="[[inbounds]]\n"
         config_content+="port = $((START_PORT + i))\n"
         config_content+="protocol = \"$config_type\"\n"
@@ -62,8 +62,10 @@ config_xray() {
         config_content+="type = \"field\"\n"
         config_content+="inboundTag = \"tag_$((i + 1))\"\n"
         config_content+="outboundTag = \"tag_$((i + 1))\"\n\n\n"
+
+        echo -e "$config_content" >> /etc/xrayL/config.toml
     done
-    echo -e "$config_content" >/etc/xrayL/config.toml
+
     systemctl restart xrayL.service
     systemctl --no-pager status xrayL.service
     echo ""
@@ -74,6 +76,9 @@ config_xray() {
     echo "socks密码:$SOCKS_PASSWORD"
     echo ""
 }
+
+
+
 main() {
     [ -x "$(command -v xrayL)" ] || install_xray
     config_xray
