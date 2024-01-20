@@ -74,7 +74,6 @@ config_xray() {
     echo "socks密码:$SOCKS_PASSWORD"
     echo ""
 }
-
 main() {
     [ -x "$(command -v xrayL)" ] || install_xray
     config_xray
