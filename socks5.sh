@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 默认变量
-DEFAULT_SOCKS_PORT=1080
-DEFAULT_SOCKS_USERNAME="user"  
+DEFAULT_SOCKS_PORT=1080  
+DEFAULT_SOCKS_USERNAME="user"
 DEFAULT_SOCKS_PASSWORD="password"
 
 # 安装Xray
@@ -13,7 +13,7 @@ install_xray() {
     echo "Xray已安装,跳过安装步骤。"
   else
     # 下载并安装
-    wget https://github.com/XTLS/Xray-core/releases/download/v1.5.2/Xray-linux-64.zip
+    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.7/Xray-linux-64.zip
     unzip Xray-linux-64.zip
     mv xray /usr/local/bin/xray
     chmod +x /usr/local/bin/xray
@@ -24,13 +24,13 @@ install_xray() {
 Description=Xray Service
 After=network.target
 
-[Service] 
+[Service]
 ExecStart=/usr/local/bin/xray run -config /etc/xray/config.json
 Restart=on-failure
 User=nobody
 RestartSec=3
 
-[Install]
+[Install]  
 WantedBy=multi-user.target
 EOF
 
@@ -43,7 +43,7 @@ EOF
   echo "Xray 安装完成。"
 }
 
-# 生成Xray配置
+# 生成Xray配置  
 generate_config() {
   port=$1
   username=$2
@@ -56,23 +56,23 @@ generate_config() {
       "port": $port,
       "protocol": "socks",
       "settings": {
-        "udp": true,
+        "udp": true,  
         "auth": "password",
         "accounts": [
-          {"user": "$username", "pass": "$password"}
+          {"user": "$username", "pass": "$password"} 
         ]
       },
       "sniffing": {
         "enabled": true,
-        "destOverride": ["http", "tls"]
+        "destOverride": ["http", "tls"]  
       }
     }
   ],
   "outbounds": [
     {
-      "protocol": "freedom" 
+      "protocol": "freedom"
     }
-  ]  
+  ]
 }
 EOF
 }
@@ -85,17 +85,19 @@ main() {
 
   # 生成配置
   IP_LIST=($(hostname -I))
-  
+
+  port=$DEFAULT_SOCKS_PORT
+
   for ip in ${IP_LIST[@]}; do
-    port=$((DEFAULT_SOCKS_PORT + ${IP_LIST[@]})) 
-    generate_config $port $DEFAULT_SOCKS_USERNAME $DEFAULT_SOCKS_PASSWORD 
+    generate_config $port $DEFAULT_SOCKS_USERNAME $DEFAULT_SOCKS_PASSWORD
+    port=$((port+1))
   done
 
   # 重启Xray
-  systemctl restart xray
+  systemctl restart xray  
 
   echo "Xray 配置完成。"
-  echo "端口范围: $DEFAULT_SOCKS_PORT - $port"
+  echo "端口范围:$DEFAULT_SOCKS_PORT - $((port-1))" 
   echo "账号:$DEFAULT_SOCKS_USERNAME"
   echo "密码:$DEFAULT_SOCKS_PASSWORD"
 }
