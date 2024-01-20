@@ -51,6 +51,7 @@ config_xray() {
     SOCKS_PASSWORD=${SOCKS_PASSWORD:-$DEFAULT_SOCKS_PASSWORD}
 
     for ((i = 0; i < ${#IP_ADDRESSES[@]}; i++)); do
+        config_content=""
         config_content+="[[inbounds]]\n"
         config_content+="port = $((START_PORT + i))\n"
         config_content+="protocol = \"$config_type\"\n"
@@ -58,31 +59,32 @@ config_xray() {
         config_content+="[inbounds.settings]\n"
         config_content+="auth = \"password\"\n"
         config_content+="udp = true\n"
-        config_content+="ip = \"${IP_ADDRESSES[i]}\"\n"
+        config_content+="ip = \"0.0.0.0\"\n"  # Use IPv4 address
         config_content+="[[inbounds.settings.accounts]]\n"
         config_content+="user = \"$SOCKS_USERNAME\"\n"
         config_content+="pass = \"$SOCKS_PASSWORD\"\n"
         config_content+="[[outbounds]]\n"
-        config_content+="sendThrough = \"${IP_ADDRESSES[i]}\"\n"
+        config_content+="sendThrough = \"0.0.0.0\"\n"  # Use IPv4 address
         config_content+="protocol = \"freedom\"\n"
         config_content+="tag = \"tag_$((i + 1))\"\n\n"
         config_content+="[[routing.rules]]\n"
         config_content+="type = \"field\"\n"
         config_content+="inboundTag = \"tag_$((i + 1))\"\n"
         config_content+="outboundTag = \"tag_$((i + 1))\"\n\n\n"
-    done
-    echo -e "$config_content" >/etc/xrayL/config.toml
+
+        echo -e "$config_content" >> /etc/xrayL/config.toml
+    }
+
     systemctl restart xrayL.service
     systemctl --no-pager status xrayL.service
     echo ""
     echo "生成 $config_type 配置完成"
     echo "起始端口:$START_PORT"
-    echo "结束端口:$(($START_PORT + $i - 1))"
+    echo "结束端口:$(($START_PORT + ${#IP_ADDRESSES[@]} - 1))"
     echo "socks账号:$SOCKS_USERNAME"
     echo "socks密码:$SOCKS_PASSWORD"
     echo ""
 }
-
 
 
 main() {
