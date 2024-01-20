@@ -43,35 +43,34 @@ EOF
   echo "Xray 安装完成。"
 }
 
-# 生成Xray配置  
+# 生成配置
 generate_config() {
-  port=$1
-  username=$2
-  password=$3
+  ip=$1
+  port=$2
+  username=$3
+  password=$4
   
-  cat >> /etc/xray/config.json <<EOF
+  # 根据 IP 和端口生成配置
+  cat >> /etc/xray/config.json <<EOF  
 {
   "inbounds": [
     {
-      "port": $port,
+      "port": $port, 
       "protocol": "socks",
       "settings": {
-        "udp": true,  
-        "auth": "password",
+        "auth": "password", 
         "accounts": [
-          {"user": "$username", "pass": "$password"} 
-        ]
-      },
-      "sniffing": {
-        "enabled": true,
-        "destOverride": ["http", "tls"]  
+          {"user": "$username", "pass": "$password"}
+        ],
+        "udp": true,
+        "ip": "$ip"
       }
     }
   ],
   "outbounds": [
     {
       "protocol": "freedom"
-    }
+    }  
   ]
 }
 EOF
@@ -80,24 +79,18 @@ EOF
 # 主函数
 main() {
 
-  # 安装Xray
   install_xray
-
-  # 生成配置
-  IP_LIST=($(hostname -I))
-
-  port=$DEFAULT_SOCKS_PORT
-
-  for ip in ${IP_LIST[@]}; do
-    generate_config $port $DEFAULT_SOCKS_USERNAME $DEFAULT_SOCKS_PASSWORD
-    port=$((port+1))
+  
+  IP_LIST=$(hostname -I)
+  
+  for ip in $IP_LIST; do
+    generate_config $ip $DEFAULT_SOCKS_PORT $DEFAULT_SOCKS_USERNAME $DEFAULT_SOCKS_PASSWORD 
   done
 
-  # 重启Xray
-  systemctl restart xray  
+  systemctl restart xray
 
-  echo "Xray 配置完成。"
-  echo "端口范围:$DEFAULT_SOCKS_PORT - $((port-1))" 
+  echo "配置完成"
+  echo "端口:$DEFAULT_SOCKS_PORT"  
   echo "账号:$DEFAULT_SOCKS_USERNAME"
   echo "密码:$DEFAULT_SOCKS_PASSWORD"
 }
