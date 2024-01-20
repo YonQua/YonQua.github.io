@@ -7,11 +7,16 @@ IP_ADDRESSES=($(hostname -I))
 install_xray() {
     echo "安装 Xray..."
     apt-get install unzip -y || yum install unzip -y
-    wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
-    unzip Xray-linux-64.zip
-    mv xray /usr/local/bin/xrayL
-    chmod +x /usr/local/bin/xrayL
-    cat <<EOF >/etc/systemd/system/xrayL.service
+
+    if [ -x "$(command -v xrayL)" ]; then
+        echo "Xray 已经安装，跳过安装步骤."
+    else
+        wget https://github.com/XTLS/Xray-core/releases/download/v1.8.3/Xray-linux-64.zip
+        unzip Xray-linux-64.zip
+        mv xray /usr/local/bin/xrayL
+        chmod +x /usr/local/bin/xrayL
+
+        cat <<EOF >/etc/systemd/system/xrayL.service
 [Unit]
 Description=XrayL Service
 After=network.target
@@ -25,11 +30,14 @@ RestartSec=3
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reload
-    systemctl enable xrayL.service
-    systemctl start xrayL.service
-    echo "Xray 安装完成."
+
+        systemctl daemon-reload
+        systemctl enable xrayL.service
+        systemctl start xrayL.service
+        echo "Xray 安装完成."
+    fi
 }
+
 
 config_xray() {
     config_type="socks"
