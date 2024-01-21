@@ -33,7 +33,7 @@ EOF
 	echo "Xray 安装完成."
 }
 config_xray() {
-	config_type=$1
+	config_type="socks"
 	mkdir -p /etc/xrayL
 	read -p "起始端口 (默认 $DEFAULT_START_PORT): " START_PORT
 	START_PORT=${START_PORT:-$DEFAULT_START_PORT}
