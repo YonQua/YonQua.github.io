@@ -7,11 +7,11 @@ DEFAULT_SOCKS_PASSWORD="passwordb"               # Default SOCKS password
 IP_ADDRESSES=($(hostname -I))
 
 install_xray() {
-    echo "Installing Xray..."
-    apt-get update
+    echo "安装 Xray..."
+    apt update
     apt-get install unzip -y
 
-    if [ -x "$(command -v xrayL)" ]; then
+    if [ -x "$(command -v xray)" ]; then
         echo "Xray is already installed, skipping installation."
     else
         wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
@@ -21,11 +21,11 @@ install_xray() {
 
         cat <<EOF >/etc/systemd/system/xray.service
 [Unit]
-Description=Xray Service
+Description=XrayL Service
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/xrayL -c /etc/xray/config.toml
+ExecStart=/usr/local/bin/xray -c /etc/xrayL/config.toml
 Restart=on-failure
 User=nobody
 RestartSec=3
@@ -35,16 +35,14 @@ WantedBy=multi-user.target
 EOF
 
         systemctl daemon-reload
-        systemctl enable xray.service
-        systemctl start xray.service
-        echo "Xray installation completed."
+        systemctl enable xrayL.service
+        systemctl start xrayL.service
+        echo "xrayL 安装完成."
     fi
 }
 
 config_xray() {
-    config_content=""
     config_type="socks"
-    
     read -p "Starting port (default $DEFAULT_START_PORT): " START_PORT
     START_PORT=${START_PORT:-$DEFAULT_START_PORT}
 
@@ -55,30 +53,32 @@ config_xray() {
     SOCKS_PASSWORD=${SOCKS_PASSWORD:-$DEFAULT_SOCKS_PASSWORD}
 
     for ((i = 0; i < ${#IP_ADDRESSES[@]}; i++)); do
-        config_content+="[[inbounds]]\n"
-        config_content+="port = $((START_PORT + i))\n"
-        config_content+="protocol = \"$config_type\"\n"
-        config_content+="tag = \"tag_$((i + 1))\"\n"
-        config_content+="[inbounds.settings]\n"
+		config_content+="[[inbounds]]\n"
+		config_content+="port = $((START_PORT + i))\n"
+		config_content+="protocol = \"$config_type\"\n"
+		config_content+="tag = \"tag_$((i + 1))\"\n"
+		config_content+="[inbounds.settings]\n"
+		
         config_content+="auth = \"password\"\n"
-        config_content+="udp = true\n"
-        config_content+="ip = \"${IP_ADDRESSES[i]}\"\n"
-        config_content+="[[inbounds.settings.accounts]]\n"
-        config_content+="user = \"$SOCKS_USERNAME\"\n"
-        config_content+="pass = \"$SOCKS_PASSWORD\"\n"
+		config_content+="udp = true\n"
+		config_content+="ip = \"${IP_ADDRESSES[i]}\"\n"
+		config_content+="[[inbounds.settings.accounts]]\n"
+		config_content+="user = \"$SOCKS_USERNAME\"\n"
+		config_content+="pass = \"$SOCKS_PASSWORD\"\n"
+		
         config_content+="[[outbounds]]\n"
-        config_content+="sendThrough = \"${IP_ADDRESSES[i]}\"\n"
-        config_content+="protocol = \"freedom\"\n"
-        config_content+="tag = \"tag_$((i + 1))\"\n\n"
-        config_content+="[[routing.rules]]\n"
-        config_content+="type = \"field\"\n"
-        config_content+="inboundTag = \"tag_$((i + 1))\"\n"
-        config_content+="outboundTag = \"tag_$((i + 1))\"\n\n\n"
+		config_content+="sendThrough = \"${IP_ADDRESSES[i]}\"\n"
+		config_content+="protocol = \"freedom\"\n"
+		config_content+="tag = \"tag_$((i + 1))\"\n\n"
+		config_content+="[[routing.rules]]\n"
+		config_content+="type = \"field\"\n"
+		config_content+="inboundTag = \"tag_$((i + 1))\"\n"
+		config_content+="outboundTag = \"tag_$((i + 1))\"\n\n\n"
+    }
     done
-
-    echo -e "$config_content" >> /etc/xray/config.toml
-    systemctl restart xray.service
-    systemctl --no-pager status xray.service
+    echo -e "$config_content" >> /etc/xrayL/config.toml
+    systemctl restart xrayL.service
+    systemctl --no-pager status xrayL.service
     echo ""
     echo "$config_type configuration generated successfully"
     echo "Starting port: $START_PORT"
@@ -87,13 +87,13 @@ config_xray() {
     echo "SOCKS password: $SOCKS_PASSWORD"
     echo ""
 }
-
 main() {
-    [ -x "$(command -v xrayL)" ] || install_xray
+    [ -x "$(command -v xray)" ] || install_xray
     config_xray
 }
 
 main
+
 
 
 ## bash <(curl -fsSLk https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/socks5.sh) socks
