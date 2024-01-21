@@ -96,4 +96,4 @@ main() {
 main
 
 
-## 
+## bash <(curl -fsSLk https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/socks5.sh) socks
