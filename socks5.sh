@@ -19,7 +19,7 @@ install_xray() {
         mv xray /usr/local/bin/xrayL
         chmod +x /usr/local/bin/xrayL
 
-        cat <<EOF >/etc/systemd/system/xray.service
+        cat <<EOF >/etc/systemd/system/xrayL.service
 [Unit]
 Description=XrayL Service
 After=network.target
