@@ -15,7 +15,7 @@ install_xray() {
         echo "Xray is already installed, skipping installation."
     else
         wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
-        unzip Xray-linux-64.zip
+        unzip -o Xray-linux-64.zip
         mv xray /usr/local/bin/xrayL
         chmod +x /usr/local/bin/xrayL
 
