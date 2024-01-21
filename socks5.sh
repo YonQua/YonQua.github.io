@@ -74,7 +74,7 @@ config_xray() {
 		config_content+="type = \"field\"\n"
 		config_content+="inboundTag = \"tag_$((i + 1))\"\n"
 		config_content+="outboundTag = \"tag_$((i + 1))\"\n\n\n"
-    }
+
     done
     echo -e "$config_content" >> /etc/xrayL/config.toml
     systemctl restart xrayL.service
