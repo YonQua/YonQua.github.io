@@ -65,6 +65,4 @@ echo "请注销然后重新登录，或者重启你的系统以应用用户组�
 # 使用说明：
 # 使用git clone命令克隆仓库
 # git clone https://github.com/YonQua/YonQua.github.io.git
-# curl -o install_docker.sh https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh
-# chmod +x install_docker.sh
-# sudo ./install_docker.sh
+# curl -o install_docker.sh https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh && chmod +x install_docker.sh && sudo ./install_docker.sh
