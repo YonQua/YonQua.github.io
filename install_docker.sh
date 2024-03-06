@@ -21,7 +21,7 @@ sudo apt-get install -y \
 
 # 添加Docker的官方GPG密钥
 echo "添加Docker的官方GPG密钥..."
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "y" | curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
 # 设置稳定版的仓库
 echo "设置Docker的稳定版仓库..."
