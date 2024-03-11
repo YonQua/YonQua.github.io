@@ -19,7 +19,7 @@ user.privileged: root
 user.unprivileged: nobody
 
 # The listening network interface or address.
-internal: 0.0.0.0 port=1080
+internal: 0.0.0.0 port=32353
 
 # The proxying network interface or address.
 external: $interface_name
@@ -52,7 +52,7 @@ sudo systemctl restart danted.service
 sudo systemctl status danted.service
 
 # 调用
-# wget https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/ss5.sh && chmod +x ss5.sh && ./ss5.sh
+# wget https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/dante_ss5.sh && chmod +x dante_ss5.sh && ./dante_ss5.sh
 
 # 测试
 #curl -v -x socks5://leishao:leishao@146.190.114.82:1080 http://www.google.com/
