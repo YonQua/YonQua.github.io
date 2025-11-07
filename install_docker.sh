@@ -85,7 +85,7 @@ EOF
 # ============================================
 echo "[6/8] 安装 Docker CE 与插件..."
 apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 # ============================================
 # 7. 启动服务
