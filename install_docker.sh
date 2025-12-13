@@ -1,13 +1,9 @@
 #!/bin/bash
 
-# Docker CE & Compose 插件安装脚本 (Debian/Armbian)
+# Docker CE & Compose 插件安装脚本 (支持 Debian/Ubuntu/Armbian)
 # 
-# 使用方式:
-#   方式1 (推荐): curl -fsSL https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh | sudo bash
-#   方式2: wget https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh && sudo bash install_docker.sh
-#   方式3: git clone https://github.com/YonQua/YonQua.github.io.git && cd YonQua.github.io && sudo bash install_docker.sh
-# 
-# 日期: 2025-11-07
+# 修复说明: 增加了自动识别 OS (Ubuntu/Debian) 的逻辑，解决了 Ubuntu 系统报错 404 的问题
+# 日期: 2025-12-14
 
 set -e
 
@@ -20,7 +16,6 @@ if [ "$(id -u)" -ne 0 ]; then
    exit 1
 fi
 
-# 获取真实用户（即使通过 sudo 运行）
 REAL_USER=${SUDO_USER:-$(logname 2>/dev/null || echo $USER)}
 if [ "$REAL_USER" = "root" ]; then
     REAL_USER=""
@@ -35,19 +30,7 @@ echo "架构: $(dpkg --print-architecture)"
 [ -n "$REAL_USER" ] && echo "用户: $REAL_USER"
 echo ""
 
-# 检测架构兼容性
 ARCH=$(dpkg --print-architecture)
-case "$ARCH" in
-    amd64|arm64|armhf)
-        echo "✓ 架构 $ARCH 受官方支持"
-        ;;
-    *)
-        echo "⚠ 警告: 架构 $ARCH 可能不被官方支持"
-        read -p "是否继续? (y/N) " -n 1 -r
-        echo
-        [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1
-        ;;
-esac
 
 # ============================================
 # 3. 安装依赖
@@ -64,20 +47,29 @@ apt-get install -y ca-certificates curl gnupg lsb-release
 # ============================================
 echo "[3/8] 卸载旧版 Docker..."
 apt-get remove -y docker docker-engine docker.io containerd runc docker-compose 2>/dev/null || true
-apt-get autoremove -y
+# 注意：不强制 autoremove，以免误删其他依赖，如有需要手动执行
 
 # ============================================
-# 5. 添加 Docker 官方源
+# 5. 添加 Docker 官方源 (关键修复步骤)
 # ============================================
 echo "[4/8] 添加 Docker GPG 密钥..."
 mkdir -p /etc/apt/keyrings
 rm -f /etc/apt/keyrings/docker.gpg
-curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# 根据发行版自动选择 GPG URL
+DISTRO_ID=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+
+# 如果是 LinuxMint 等基于 Ubuntu 的发行版，强制识别为 ubuntu
+if [[ "$DISTRO_ID" == "linuxmint" ]]; then DISTRO_ID="ubuntu"; fi
+
+curl -fsSL https://download.docker.com/linux/$DISTRO_ID/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 
-echo "[5/8] 设置 Docker 仓库..."
+echo "[5/8] 设置 Docker 仓库 (自动识别模式)..."
+# 使用识别到的 DISTRO_ID (debian 或 ubuntu)
+echo "识别到的发行版类型: $DISTRO_ID"
+
 cat > /etc/apt/sources.list.d/docker.list << EOF
-deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable
+deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$DISTRO_ID $(lsb_release -cs) stable
 EOF
 
 # ============================================
@@ -118,26 +110,10 @@ docker compose version
 # ============================================
 echo ""
 echo "=== 安装完成 ==="
-echo ""
-echo "常用命令:"
-echo "  docker ps                # 查看容器"
-echo "  docker images            # 查看镜像"
-echo "  docker compose up -d     # 启动项目（后台）"
-echo "  docker compose down      # 停止项目"
-echo "  docker system prune      # 清理未使用资源"
-echo ""
 echo "官方文档: https://docs.docker.com/"
 echo ""
-echo "=========================================="
-echo "一键安装命令 (可分享给他人):"
-echo "curl -fsSL https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh | sudo bash"
-echo "=========================================="
 
-# 权限提醒
 if [ -n "$REAL_USER" ]; then
-    echo ""
-    echo "⚠ 重要: 请注销重新登录，或执行以下命令使 docker 组权限生效:"
-    echo "   newgrp docker"
+    echo "⚠ 重要: 请注销重新登录，或执行 'newgrp docker' 使权限生效。"
 fi
-
 echo ""
