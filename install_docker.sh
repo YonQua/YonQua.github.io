@@ -5,7 +5,7 @@
 # 修复说明: 增加了自动识别 OS (Ubuntu/Debian) 的逻辑，解决了 Ubuntu 系统报错 404 的问题
 # 去掉了 sudo，直接用 bash 运行
 # curl -fsSL https://raw.githubusercontent.com/YonQua/YonQua.github.io/main/install_docker.sh | bash
-# 日期: 2025-12-14
+# 日期: 2026-03-18
 
 set -e
 
